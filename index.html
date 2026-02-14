@@ -1,0 +1,67 @@
+ <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carousel 1</title>
+  <style>
+    body{margin:0; padding:24px; background:#f5f6f7; font-family:Arial; display:flex; justify-content:center;}
+    .slider{width:min(420px,92vw); aspect-ratio:1/1; position:relative; border-radius:18px; overflow:hidden; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.08);}
+    .track{height:100%; display:flex; transition:transform .35s ease;}
+    .slide{min-width:100%; height:100%; display:flex; align-items:center; justify-content:center;}
+    .slide img{width:100%; height:100%; object-fit:contain; padding:12px;}
+    .btn{position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; border:none; border-radius:999px; background:rgba(0,0,0,.35); color:#fff; font-size:22px; cursor:pointer;}
+    .prev{left:12px;} .next{right:12px;}
+    .dots{position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:8px; padding:6px 10px; background:rgba(0,0,0,.18); border-radius:999px;}
+    .dot{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.55); cursor:pointer;}
+    .dot.active{background:#fff;}
+  </style>
+</head>
+<body>
+
+  <div class="slider">
+    <div class="track" id="track">
+      <div class="slide"><img src="mint.jpg" alt="Mint"></div>
+      <div class="slide"><img src="grape.jpg" alt="Grape"></div>
+    </div>
+    <button class="btn prev" id="prev">‹</button>
+    <button class="btn next" id="next">›</button>
+    <div class="dots" id="dots"></div>
+  </div>
+
+<script>
+  const track = document.getElementById('track');
+  const slides = Array.from(track.children);
+  const dotsWrap = document.getElementById('dots');
+  let i = 0;
+
+  // dots
+  slides.forEach((_, idx) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (idx===0 ? ' active' : '');
+    d.addEventListener('click', ()=> go(idx));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function render(){
+    track.style.transform = `translateX(-${i*100}%)`;
+    dots.forEach((d, idx)=> d.classList.toggle('active', idx===i));
+  }
+  function go(idx){
+    i = (idx + slides.length) % slides.length;
+    render();
+  }
+
+  document.getElementById('prev').onclick = ()=> go(i-1);
+  document.getElementById('next').onclick = ()=> go(i+1);
+
+  // swipe
+  let startX=0, dx=0, touching=false;
+  track.addEventListener('touchstart', (e)=>{touching=true; startX=e.touches[0].clientX; dx=0;},{passive:true});
+  track.addEventListener('touchmove', (e)=>{if(!touching) return; dx=e.touches[0].clientX-startX;},{passive:true});
+  track.addEventListener('touchend', ()=>{touching=false; if(Math.abs(dx)>40) go(dx>0? i-1 : i+1);});
+</script>
+
+</body>
+</html>
